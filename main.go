@@ -7,14 +7,13 @@ import (
 
 func main() {
 
-	var (
-		backends = []*Backend{
-			AddBackend("alpha", "http://127.0.0.1:9000"),
-			AddBackend("beta", "http://127.0.0.1:9001"),
-			AddBackend("charlie", "http://127.0.0.1:9002"),
-		}
-		//nextBackend int
-	)
+	backends := []*Backend{
+		AddBackend("alpha", "http://127.0.0.1:9000"),
+		AddBackend("beta", "http://127.0.0.1:9001"),
+		AddBackend("charlie", "http://127.0.0.1:9002"),
+	}
+
+	strategy := &Strategy{}
 
 	// Health check all the registered backends
 	for i := range backends {
@@ -27,7 +26,12 @@ func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 
 		// Implement a backend seletion strategy
-		backend := backends[0] // temporary
+		backend, err := strategy.RoundRobin(backends)
+
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusServiceUnavailable)
+			return
+		}
 
 		if err := backend.Start(); err != nil {
 			http.Error(w, err.Error(), http.StatusServiceUnavailable)

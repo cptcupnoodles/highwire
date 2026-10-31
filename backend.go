@@ -16,10 +16,6 @@ type Backend struct {
 	Failure             int
 }
 
-var (
-	nextBackend int
-)
-
 func AddBackend(name, address string) *Backend {
 	backend := &Backend{
 		Name:                name,
