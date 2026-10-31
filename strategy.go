@@ -18,7 +18,7 @@ func (r *Strategy) RoundRobin(backends []*Backend) (*Backend, error) {
 		return nil, fmt.Errorf("no backends configured")
 	}
 
-	for checked := 0; checked < len(backends); checked++ {
+	for range len(backends) {
 		index := r.next
 		r.next = (r.next + 1) % len(backends)
 

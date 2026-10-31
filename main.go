@@ -8,9 +8,9 @@ import (
 func main() {
 
 	backends := []*Backend{
-		AddBackend("alpha", "http://127.0.0.1:9000"),
-		AddBackend("beta", "http://127.0.0.1:9001"),
-		AddBackend("charlie", "http://127.0.0.1:9002"),
+		AddBackend("alpha", "http://127.0.0.1:9000", 2),
+		AddBackend("beta", "http://127.0.0.1:9001", 3),
+		AddBackend("charlie", "http://127.0.0.1:9002", 5),
 	}
 
 	strategy := &Strategy{}

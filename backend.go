@@ -14,9 +14,10 @@ type Backend struct {
 	ActiveRequest       int
 	TotalStartedRequest int
 	Failure             int
+	Weight              int
 }
 
-func AddBackend(name, address string) *Backend {
+func AddBackend(name, address string, weight int) *Backend {
 	backend := &Backend{
 		Name:                name,
 		Address:             address,
@@ -24,6 +25,7 @@ func AddBackend(name, address string) *Backend {
 		ActiveRequest:       0,
 		TotalStartedRequest: 0,
 		Failure:             0,
+		Weight:              weight,
 	}
 
 	return backend
