@@ -1,6 +1,9 @@
 package main
 
-import "net/http"
+import (
+	"log"
+	"net/http"
+)
 
 func main() {
 
@@ -22,12 +25,24 @@ func main() {
 	}
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		backend := backends[0]
+
+		// Implement a backend seletion strategy
+		backend := backends[0] // temporary
 
 		if err := backend.Start(); err != nil {
-
+			http.Error(w, err.Error(), http.StatusServiceUnavailable)
+			return
 		}
+
+		defer func() {
+			_ = backend.Complete()
+		}()
+
+		// Implement the proxy
+		backend.proxy(w, r)
 
 	})
 
+	log.Println("proxy listening on http://127.0.0.1:8080")
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }
