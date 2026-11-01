@@ -94,6 +94,20 @@ func (b *Backend) Fail() error {
 	return nil
 }
 
+func TotalWeight(backends []*Backend) (int, error) {
+	var totalWeight int
+
+	if len(backends) == 0 {
+		return 0, fmt.Errorf("no backend configured")
+	}
+
+	for _, value := range backends {
+		totalWeight += value.Weight
+	}
+
+	return totalWeight, nil
+}
+
 func (b *Backend) String() string {
 	b.mu.Lock()
 	defer b.mu.Unlock()
