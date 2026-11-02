@@ -6,8 +6,7 @@ import (
 )
 
 type Backend struct {
-	mu sync.Mutex
-
+	mu                  sync.Mutex
 	Name                string
 	Address             string
 	IsHealthy           bool
@@ -21,7 +20,7 @@ func AddBackend(name, address string, weight int) *Backend {
 	backend := &Backend{
 		Name:                name,
 		Address:             address,
-		IsHealthy:           false,
+		IsHealthy:           true,
 		ActiveRequest:       0,
 		TotalStartedRequest: 0,
 		Failure:             0,
@@ -94,20 +93,6 @@ func (b *Backend) Fail() error {
 	return nil
 }
 
-func TotalWeight(backends []*Backend) (int, error) {
-	var totalWeight int
-
-	if len(backends) == 0 {
-		return 0, fmt.Errorf("no backend configured")
-	}
-
-	for _, value := range backends {
-		totalWeight += value.Weight
-	}
-
-	return totalWeight, nil
-}
-
 func (b *Backend) String() string {
 	b.mu.Lock()
 	defer b.mu.Unlock()
@@ -119,4 +104,16 @@ func (b *Backend) String() string {
 		b.TotalStartedRequest,
 		b.Failure,
 	)
+}
+
+func totalWeight(backends []*Backend) int {
+	var totalWeight int
+
+	for _, value := range backends {
+		if value.Health() {
+			totalWeight += value.Weight
+		}
+	}
+
+	return totalWeight
 }

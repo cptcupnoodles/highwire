@@ -8,12 +8,12 @@ import (
 func main() {
 
 	backends := []*Backend{
-		AddBackend("alpha", "http://127.0.0.1:9000", 2),
+		AddBackend("alpha", "http://127.0.0.1:9000", 5),
 		AddBackend("beta", "http://127.0.0.1:9001", 3),
-		AddBackend("charlie", "http://127.0.0.1:9002", 5),
+		AddBackend("charlie", "http://127.0.0.1:9002", 2),
 	}
 
-	strategy := &Strategy{}
+	strategy := NewStrategy()
 
 	// Health check all the registered backends
 	for i := range backends {
@@ -26,7 +26,7 @@ func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 
 		// Implement a backend seletion strategy
-		backend, err := strategy.RoundRobin(backends)
+		backend, err := strategy.WeightedRoundRobin(backends)
 
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusServiceUnavailable)

@@ -6,8 +6,15 @@ import (
 )
 
 type Strategy struct {
-	mu   sync.Mutex
-	next int
+	mu            sync.Mutex
+	next          int
+	currentWeight map[*Backend]int
+}
+
+func NewStrategy() *Strategy {
+	return &Strategy{
+		currentWeight: make(map[*Backend]int),
+	}
 }
 
 func (s *Strategy) RoundRobin(backends []*Backend) (*Backend, error) {
@@ -34,7 +41,41 @@ func (s *Strategy) WeightedRoundRobin(backends []*Backend) (*Backend, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	if len(backends) == 0 {
-		return nil, fmt.Errorf("no backends configured")
+	var totalWeight int
+
+	// Add each healthy backend's weight.
+	for _, backend := range backends {
+		if !backend.Health() || backend.Weight <= 0 {
+			continue
+		}
+
+		s.currentWeight[backend] += backend.Weight
+		totalWeight += backend.Weight
 	}
+
+	if totalWeight == 0 {
+		return nil, fmt.Errorf("no healthy backends available")
+	}
+
+	var selected *Backend
+	// Select the backend with the highest current weight.
+	for _, backend := range backends {
+		if !backend.Health() || backend.Weight <= 0 {
+			continue
+		}
+
+		if selected == nil || s.currentWeight[backend] > s.currentWeight[selected] {
+			selected = backend
+		}
+	}
+
+	if selected == nil {
+		return nil, fmt.Errorf("no healthy backends available")
+	}
+
+	// subtract one complete scheduling cycle
+	s.currentWeight[selected] -= totalWeight
+
+	// Forward the request to the selected backend.
+	return selected, nil
 }
