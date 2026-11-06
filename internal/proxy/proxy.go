@@ -1,12 +1,14 @@
-package main
+package proxy
 
 import (
 	"io"
 	"net/http"
 	"net/url"
+
+	"highwire/m/internal/backend"
 )
 
-func (backend *Backend) proxy(w http.ResponseWriter, r *http.Request) {
+func Proxy(backend *backend.Backend, w http.ResponseWriter, r *http.Request) {
 	target, err := url.Parse(backend.Address)
 
 	if err != nil {

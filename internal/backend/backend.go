@@ -1,4 +1,4 @@
-package main
+package backend
 
 import (
 	"fmt"
@@ -16,7 +16,7 @@ type Backend struct {
 	Weight              int
 }
 
-func AddBackend(name, address string, weight int) *Backend {
+func New(name, address string, weight int) *Backend {
 	backend := &Backend{
 		Name:                name,
 		Address:             address,

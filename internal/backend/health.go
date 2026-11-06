@@ -1,4 +1,4 @@
-package main
+package backend
 
 import (
 	"io"
@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func (b *Backend) healthCheck() bool {
+func (b *Backend) HealthCheck() bool {
 	// format url & send health request
 	url := strings.TrimRight(b.Address, "/") + "/health"
 	resp, err := http.Get(url)

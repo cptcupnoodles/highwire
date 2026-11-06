@@ -3,21 +3,25 @@ package main
 import (
 	"log"
 	"net/http"
+
+	"highwire/m/internal/backend"
+	"highwire/m/internal/proxy"
+	"highwire/m/internal/strategy"
 )
 
 func main() {
 
-	backends := []*Backend{
-		AddBackend("alpha", "http://127.0.0.1:9000", 5),
-		AddBackend("beta", "http://127.0.0.1:9001", 3),
-		AddBackend("charlie", "http://127.0.0.1:9002", 2),
+	backends := []*backend.Backend{
+		backend.New("alpha", "http://127.0.0.1:9000", 5),
+		backend.New("beta", "http://127.0.0.1:9001", 3),
+		backend.New("charlie", "http://127.0.0.1:9002", 2),
 	}
 
-	strategy := NewStrategy()
+	strategy := strategy.NewStrategy()
 
 	// Health check all the registered backends
 	for i := range backends {
-		isHealthy := backends[i].healthCheck()
+		isHealthy := backends[i].HealthCheck()
 		if isHealthy {
 			backends[i].MarkHealthy()
 		}
@@ -43,7 +47,7 @@ func main() {
 		}()
 
 		// Implement the proxy
-		backend.proxy(w, r)
+		proxy.Proxy(backend, w, r)
 
 	})
 

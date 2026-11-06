@@ -1,23 +1,24 @@
-package main
+package strategy
 
 import (
 	"fmt"
+	"highwire/m/internal/backend"
 	"sync"
 )
 
 type Strategy struct {
 	mu            sync.Mutex
 	next          int
-	currentWeight map[*Backend]int
+	currentWeight map[*backend.Backend]int
 }
 
 func NewStrategy() *Strategy {
 	return &Strategy{
-		currentWeight: make(map[*Backend]int),
+		currentWeight: make(map[*backend.Backend]int),
 	}
 }
 
-func (s *Strategy) RoundRobin(backends []*Backend) (*Backend, error) {
+func (s *Strategy) RoundRobin(backends []*backend.Backend) (*backend.Backend, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -37,7 +38,7 @@ func (s *Strategy) RoundRobin(backends []*Backend) (*Backend, error) {
 	return nil, fmt.Errorf("no healthy backends available")
 }
 
-func (s *Strategy) WeightedRoundRobin(backends []*Backend) (*Backend, error) {
+func (s *Strategy) WeightedRoundRobin(backends []*backend.Backend) (*backend.Backend, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -57,7 +58,7 @@ func (s *Strategy) WeightedRoundRobin(backends []*Backend) (*Backend, error) {
 		return nil, fmt.Errorf("no healthy backends available")
 	}
 
-	var selected *Backend
+	var selected *backend.Backend
 	// Select the backend with the highest current weight.
 	for _, backend := range backends {
 		if !backend.Health() || backend.Weight <= 0 {
